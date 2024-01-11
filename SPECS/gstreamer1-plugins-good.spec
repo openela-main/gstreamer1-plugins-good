@@ -16,8 +16,8 @@
 #global shortcommit %(c=%{gitcommit}; echo ${c:0:5})
 
 Name:           gstreamer1-plugins-good
-Version:        1.18.4
-Release:        6%{?gitcommit:.git%{shortcommit}}%{?dist}
+Version:        1.22.1
+Release:        1%{?gitcommit:.git%{shortcommit}}%{?dist}
 Summary:        GStreamer plugins with good code and licensing
 
 License:        LGPLv2+
@@ -30,12 +30,6 @@ Source0:        gst-plugins-good-%{version}.tar.xz
 %else
 Source0:        http://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugins-good-%{version}.tar.xz
 %endif
-Patch0:         %{name}-gcc11.patch
-
-Patch1:		0001-avidemux-Fix-integer-overflow-resulting-in-heap-corr.patch
-Patch2:		0002-matroskademux-Fix-integer-overflows-in-zlib-bz2-etc-.patch
-Patch3:		0003-qtdemux-Fix-integer-overflows-in-zlib-decompression-.patch
-Patch4:		0004-matroskademux-Avoid-integer-overflow-resulting-in-he.patch
 
 # Register as an AppStream component to be visible in the software center
 # NOTE: It would be *awesome* if this file was maintained by the upstream
@@ -169,11 +163,6 @@ to be installed.
 
 %prep
 %setup -q -n gst-plugins-good-%{version}
-%patch0 -p2
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
 
 %build
 %meson \
@@ -181,7 +170,7 @@ to be installed.
   -D package-origin='http://download.fedoraproject.org' \
   -D doc=disabled \
   -D asm=%{?with_nasm:enabled}%{!?with_nasm:disabled} \
-  -D gtk_doc=disabled \
+  -D doc=disabled \
   -D orc=enabled \
   -D monoscope=disabled \
   -D aalib=disabled \
@@ -194,6 +183,10 @@ to be installed.
   -D dv=%{?with_extras:enabled}%{!?with_extras:disabled} \
   -D dv1394=%{?with_extras:enabled}%{!?with_extras:disabled} \
 %endif
+%if 0%{?_module_build} && "%{_module_name}" == "flatpak-runtime"
+  -D v4l2-gudev=disabled \
+%endif
+  -D qt6=disabled
 
 %meson_build
 
@@ -208,7 +201,7 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 %files -f gst-plugins-good-%{majorminor}.lang
 %license COPYING
-%doc AUTHORS README REQUIREMENTS
+%doc AUTHORS NEWS README.md README.static-linking RELEASE REQUIREMENTS
 %{_metainfodir}/gstreamer-good.appdata.xml
 %if 0
 %doc %{_datadir}/gtk-doc/html/gst-plugins-good-plugins-%{majorminor}
@@ -222,6 +215,7 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 %{_datadir}/gstreamer-%{majorminor}/presets/GstQTMux.prs
 
 # non-core plugins without external dependencies
+%{_libdir}/gstreamer-%{majorminor}/libgstadaptivedemux2.so
 %{_libdir}/gstreamer-%{majorminor}/libgstalaw.so
 %{_libdir}/gstreamer-%{majorminor}/libgstalphacolor.so
 %{_libdir}/gstreamer-%{majorminor}/libgstalpha.so
@@ -267,6 +261,7 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 %{_libdir}/gstreamer-%{majorminor}/libgstwavenc.so
 %{_libdir}/gstreamer-%{majorminor}/libgstwavparse.so
 %{_libdir}/gstreamer-%{majorminor}/libgstximagesrc.so
+%{_libdir}/gstreamer-%{majorminor}/libgstxingmux.so
 %{_libdir}/gstreamer-%{majorminor}/libgsty4menc.so
 
 # gstreamer-plugins with external dependencies but in the main package
@@ -309,6 +304,9 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
+* Thu Apr 13 2023 Wim Taymans <wtaymans@redhat.com> - 1.22.1-1
+- Update to 1.22.1
+
 * Fri Nov 11 2022 Wim Taymans <wtaymans@redhat.com> - 1.18.4-6
 - Fixes for CVE-2022-1920, CVE-2022-1921, CVE-2022-1922, CVE-2022-1923,
   CVE-2022-1924, CVE-2022-1925, CVE-2022-2122
