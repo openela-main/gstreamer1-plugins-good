@@ -17,7 +17,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.22.1
-Release:        1%{?gitcommit:.git%{shortcommit}}%{?dist}
+Release:        2%{?gitcommit:.git%{shortcommit}}%{?dist}
 Summary:        GStreamer plugins with good code and licensing
 
 License:        LGPLv2+
@@ -36,6 +36,8 @@ Source0:        http://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugin
 # project, translated and installed into the right place during `make install`.
 # See http://www.freedesktop.org/software/appstream/docs/ for more details.
 Source1:        gstreamer-good.appdata.xml
+
+Patch0:		0001-flacparse-Avoid-integer-overflow-in-available-data-c.patch
 
 BuildRequires:  meson >= 0.48.0
 BuildRequires:  gcc
@@ -163,6 +165,7 @@ to be installed.
 
 %prep
 %setup -q -n gst-plugins-good-%{version}
+%patch0 -p3
 
 %build
 %meson \
@@ -304,6 +307,11 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
+* Wed Jan 17 2024 Wim Taymans <wtaymans@redhat.com> - 1.22.1-2
+- CVE-2023-37327: integer overflow leading to heap overwrite in FLAC
+  image tag handling
+- Resolves: RHEL-19471
+
 * Thu Apr 13 2023 Wim Taymans <wtaymans@redhat.com> - 1.22.1-1
 - Update to 1.22.1
 
