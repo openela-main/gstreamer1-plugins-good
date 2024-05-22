@@ -15,7 +15,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.16.1
-Release:        3%{?gitcommit:.git%{shortcommit}}%{?dist}
+Release:        4%{?gitcommit:.git%{shortcommit}}%{?dist}
 Summary:        GStreamer plugins with good code and licensing
 
 License:        LGPLv2+
@@ -31,6 +31,7 @@ Source0:        http://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugin
 
 Patch0:         d62cecf193d6bf3b16fe91d725f4514161f602c3.patch
 Patch1:         9efd93e20dd7789e4172ad6c8f4108271b3fb1ee.patch
+Patch2:		0001-flacparse-Avoid-integer-overflow-in-available-data-c.patch
 
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
@@ -166,6 +167,7 @@ to be installed.
 %setup -q -n gst-plugins-good-%{version}
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
 %configure --disable-silent-rules --disable-fatal-warnings \
@@ -350,6 +352,11 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 
 %changelog
+* Wed Jan 17 2024 Wim Taymans <wtaymans@redhat.com> - 1.16.1-4
+- CVE-2023-37327: integer overflow leading to heap overwrite in
+  FLAC image tag handling
+- Resolves: RHEL-19469
+
 * Thu Jul 14 2022 Wim Taymans <wtaymans@redhat.com> - 1.16.1-3
 - Add patches for matroskademux. CVE-2021-3497
 - Resolves: rhbz#1948942
