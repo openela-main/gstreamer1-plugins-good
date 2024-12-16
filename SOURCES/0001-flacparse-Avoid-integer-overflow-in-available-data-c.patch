@@ -1,8 +1,8 @@
 From cf36c771ea7f4e42603c2b5880432bc8c7d3dff1 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Sebastian=20Dr=C3=B6ge?= <sebastian@centricular.com>
 Date: Tue, 13 Jun 2023 13:20:16 +0300
-Subject: [PATCH] flacparse: Avoid integer overflow in available data check for
- image tags
+Subject: [PATCH 1/7] flacparse: Avoid integer overflow in available data check
+ for image tags
 
 If the image length as stored in the file is some bogus integer then
 adding it to the current byte readers position can overflow and wrongly
@@ -51,5 +51,5 @@ index a53b7ebc77..8ee450c65a 100644
  
    gst_buffer_unmap (buffer, &map);
 -- 
-2.43.0
+2.47.0
 

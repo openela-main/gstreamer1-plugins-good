@@ -17,7 +17,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.22.1
-Release:        2%{?gitcommit:.git%{shortcommit}}%{?dist}
+Release:        3%{?gitcommit:.git%{shortcommit}}%{?dist}
 Summary:        GStreamer plugins with good code and licensing
 
 License:        LGPLv2+
@@ -38,6 +38,12 @@ Source0:        http://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugin
 Source1:        gstreamer-good.appdata.xml
 
 Patch0:		0001-flacparse-Avoid-integer-overflow-in-available-data-c.patch
+Patch1:		0002-qtdemux-Avoid-integer-overflow-when-parsing-Theora-e.patch
+Patch2:		0003-gdkpixbufdec-Check-if-initializing-the-video-info-ac.patch
+Patch3:		0004-matroskademux-Only-unmap-GstMapInfo-in-WavPack-heade.patch
+Patch4:		0005-matroskademux-Fix-off-by-one-when-parsing-multi-chan.patch
+Patch5:		0006-qtdemux-Fix-integer-overflow-when-allocating-the-sam.patch
+Patch6:		0007-qtdemux-Make-sure-only-an-even-number-of-bytes-is-pr.patch
 
 BuildRequires:  meson >= 0.48.0
 BuildRequires:  gcc
@@ -166,6 +172,12 @@ to be installed.
 %prep
 %setup -q -n gst-plugins-good-%{version}
 %patch0 -p3
+%patch1 -p3
+%patch2 -p3
+%patch3 -p3
+%patch4 -p3
+%patch5 -p3
+%patch6 -p3
 
 %build
 %meson \
@@ -307,6 +319,12 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
+* Mon Dec 16 2024 Wim Taymans <wtaymans@redhat.com> - 1.22.1-3
+- CVE-2024-47537, CVE-2024-47539, CVE-2024-47540, CVE-2024-47606,
+  CVE-2024-47613
+  Resolves: RHEL-70954, RHEL-70967, RHEL-70941, RHEL-71027,
+  Resolves: RHEL-71003
+
 * Wed Jan 17 2024 Wim Taymans <wtaymans@redhat.com> - 1.22.1-2
 - CVE-2023-37327: integer overflow leading to heap overwrite in FLAC
   image tag handling
