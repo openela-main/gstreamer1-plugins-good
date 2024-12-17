@@ -1,0 +1,40 @@
+From 6b751c71eb130f2c69eeacf5f47e0d6de639dc78 Mon Sep 17 00:00:00 2001
+From: Wim Taymans <wtaymans@redhat.com>
+Date: Mon, 16 Dec 2024 11:52:04 +0100
+Subject: [PATCH 9/9] qtdemux: Make sure only an even number of bytes is
+ processed when handling CEA608 data
+
+An odd number of bytes would lead to out of bound reads and writes, and doesn't
+make any sense as CEA608 comes in byte pairs.
+
+Strip off any leftover bytes and assume everything before that is valid.
+
+Thanks to Antonio Morales for finding and reporting the issue.
+
+Fixes GHSL-2024-195
+Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3841
+
+Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8059>
+---
+ gst/isomp4/qtdemux.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/gst/isomp4/qtdemux.c b/gst/isomp4/qtdemux.c
+index a37c92933..8336ff302 100644
+--- a/gst/isomp4/qtdemux.c
++++ b/gst/isomp4/qtdemux.c
+@@ -5612,6 +5612,11 @@ convert_to_s334_1a (const guint8 * ccpair, guint8 ccpair_size, guint field,
+   guint8 *storage;
+   gsize i;
+ 
++  /* Strip off any leftover odd bytes and assume everything before is valid */
++  if (ccpair_size % 2 != 0) {
++    ccpair_size -= 1;
++  }
++
+   /* We are converting from pairs to triplets */
+   *res = ccpair_size / 2 * 3;
+   storage = g_malloc (*res);
+-- 
+2.47.0
+

@@ -1,0 +1,27 @@
+From 5d1ac58fa39a4e8e1cb0545c44aae69f71099f27 Mon Sep 17 00:00:00 2001
+From: Wim Taymans <wtaymans@redhat.com>
+Date: Mon, 16 Dec 2024 11:49:04 +0100
+Subject: [PATCH 7/9] matroskademux: Fix off-by-one when parsing multi-channel
+ WavPack
+
+Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/8057>
+---
+ gst/matroska/matroska-demux.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/gst/matroska/matroska-demux.c b/gst/matroska/matroska-demux.c
+index 2db68bc1f..0466c9a6b 100644
+--- a/gst/matroska/matroska-demux.c
++++ b/gst/matroska/matroska-demux.c
+@@ -3771,7 +3771,7 @@ gst_matroska_demux_add_wvpk_header (GstElement * element,
+     data += 4;
+     size -= 4;
+ 
+-    while (size > 12) {
++    while (size >= 12) {
+       flags = GST_READ_UINT32_LE (data);
+       data += 4;
+       size -= 4;
+-- 
+2.47.0
+

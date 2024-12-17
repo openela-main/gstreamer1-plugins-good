@@ -1,7 +1,7 @@
-From 9efd93e20dd7789e4172ad6c8f4108271b3fb1ee Mon Sep 17 00:00:00 2001
+From fff62c8b65cd18e2673944a2a9c95520e7b5ddf3 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Sebastian=20Dr=C3=B6ge?= <sebastian@centricular.com>
 Date: Thu, 4 Mar 2021 13:05:19 +0200
-Subject: [PATCH] matroskademux: Fix extraction of multichannel WavPack
+Subject: [PATCH 1/9] matroskademux: Fix extraction of multichannel WavPack
 
 The old code had a couple of issues that all lead to potential memory
 safety bugs.
@@ -32,10 +32,10 @@ Part-of: <https://gitlab.freedesktop.org/gstreamer/gst-plugins-good/-/merge_requ
  2 files changed, 55 insertions(+), 46 deletions(-)
 
 diff --git a/gst/matroska/matroska-demux.c b/gst/matroska/matroska-demux.c
-index 4eb3d2a9f..f890ae611 100644
+index b2cd9b5d4..5e724c8e0 100644
 --- a/gst/matroska/matroska-demux.c
 +++ b/gst/matroska/matroska-demux.c
-@@ -3706,6 +3706,12 @@ gst_matroska_demux_add_wvpk_header (GstElement * element,
+@@ -3704,6 +3704,12 @@ gst_matroska_demux_add_wvpk_header (GstElement * element,
      guint32 block_samples, tmp;
      gsize size = gst_buffer_get_size (*buf);
  
@@ -48,7 +48,7 @@ index 4eb3d2a9f..f890ae611 100644
      gst_buffer_extract (*buf, 0, &tmp, sizeof (guint32));
      block_samples = GUINT32_FROM_LE (tmp);
      /* we need to reconstruct the header of the wavpack block */
-@@ -3713,10 +3719,10 @@ gst_matroska_demux_add_wvpk_header (GstElement * element,
+@@ -3711,10 +3717,10 @@ gst_matroska_demux_add_wvpk_header (GstElement * element,
      /* -20 because ck_size is the size of the wavpack block -8
       * and lace_size is the size of the wavpack block + 12
       * (the three guint32 of the header that already are in the buffer) */
@@ -61,7 +61,7 @@ index 4eb3d2a9f..f890ae611 100644
  
      gst_buffer_map (newbuf, &outmap, GST_MAP_WRITE);
      data = outmap.data;
-@@ -3741,9 +3747,11 @@ gst_matroska_demux_add_wvpk_header (GstElement * element,
+@@ -3739,9 +3745,11 @@ gst_matroska_demux_add_wvpk_header (GstElement * element,
      audiocontext->wvpk_block_index += block_samples;
    } else {
      guint8 *outdata = NULL;
@@ -75,7 +75,7 @@ index 4eb3d2a9f..f890ae611 100644
  
      gst_buffer_map (*buf, &map, GST_MAP_READ);
      buf_data = map.data;
-@@ -3752,6 +3760,7 @@ gst_matroska_demux_add_wvpk_header (GstElement * element,
+@@ -3750,6 +3758,7 @@ gst_matroska_demux_add_wvpk_header (GstElement * element,
      if (buf_size < 4) {
        GST_ERROR_OBJECT (element, "Too small wavpack buffer");
        gst_buffer_unmap (*buf, &map);
@@ -83,7 +83,7 @@ index 4eb3d2a9f..f890ae611 100644
        return GST_FLOW_ERROR;
      }
  
-@@ -3773,59 +3782,57 @@ gst_matroska_demux_add_wvpk_header (GstElement * element,
+@@ -3771,59 +3780,57 @@ gst_matroska_demux_add_wvpk_header (GstElement * element,
        data += 4;
        size -= 4;
  
@@ -197,5 +197,5 @@ index 9b263d8a1..a0d68343f 100644
    GST_MATROSKA_TRACK_ENCODING_SCOPE_FRAME = (1<<0),
    GST_MATROSKA_TRACK_ENCODING_SCOPE_CODEC_DATA = (1<<1),
 -- 
-GitLab
+2.47.0
 
