@@ -9,18 +9,29 @@
 %bcond_with nasm
 %endif
 
-%bcond_without qt
+# RHEL 10 will provide Qt 6 and drop Qt 5
+%if 0%{?rhel} >= 10
+%bcond_with qt5
+%else
+%bcond_without qt5
+%endif
+
+%if 0%{?rhel} && 0%{?rhel} < 10
+%bcond_with qt6
+%else
+%bcond_without qt6
+%endif
 
 #global gitrel     140
 #global gitcommit  9865730cfa5b3a8b2560d082e7e56b350042d3d2
 #global shortcommit %(c=%{gitcommit}; echo ${c:0:5})
 
 Name:           gstreamer1-plugins-good
-Version:        1.22.1
-Release:        3%{?gitcommit:.git%{shortcommit}}%{?dist}
+Version:        1.22.12
+Release:        4%{?dist}
 Summary:        GStreamer plugins with good code and licensing
 
-License:        LGPLv2+
+License:        CC0-1.0 AND GPL-2.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND xlock AND MIT AND BSD-3-Clause AND CC-BY-3.0 
 URL:            http://gstreamer.freedesktop.org/
 
 %if 0%{?gitrel}
@@ -37,13 +48,34 @@ Source0:        http://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugin
 # See http://www.freedesktop.org/software/appstream/docs/ for more details.
 Source1:        gstreamer-good.appdata.xml
 
-Patch0:		0001-flacparse-Avoid-integer-overflow-in-available-data-c.patch
-Patch1:		0002-qtdemux-Avoid-integer-overflow-when-parsing-Theora-e.patch
-Patch2:		0003-gdkpixbufdec-Check-if-initializing-the-video-info-ac.patch
-Patch3:		0004-matroskademux-Only-unmap-GstMapInfo-in-WavPack-heade.patch
-Patch4:		0005-matroskademux-Fix-off-by-one-when-parsing-multi-chan.patch
-Patch5:		0006-qtdemux-Fix-integer-overflow-when-allocating-the-sam.patch
-Patch6:		0007-qtdemux-Make-sure-only-an-even-number-of-bytes-is-pr.patch
+Patch0001:	0001-qtdemux-Avoid-integer-overflow-when-parsing-Theora-e.patch
+Patch0002:	0002-avisubtitle-Fix-size-checks-and-avoid-overflows-when.patch
+Patch0003:	0003-gdkpixbufdec-Check-if-initializing-the-video-info-ac.patch
+Patch0004:	0004-wavparse-Check-for-short-reads-when-parsing-headers-.patch
+Patch0005:	0005-wavparse-Make-sure-enough-data-for-the-tag-list-tag-.patch
+Patch0006:	0006-wavparse-Fix-parsing-of-acid-chunk.patch
+Patch0007:	0007-wavparse-Check-that-at-least-4-bytes-are-available-b.patch
+Patch0008:	0008-wavparse-Check-that-at-least-32-bytes-are-available-.patch
+Patch0009:	0009-wavparse-Fix-clipping-of-size-to-the-file-size.patch
+Patch0010:	0010-wavparse-Check-size-before-reading-ds64-chunk.patch
+Patch0011:	0011-matroskademux-Only-unmap-GstMapInfo-in-WavPack-heade.patch
+Patch0012:	0012-matroskademux-Fix-off-by-one-when-parsing-multi-chan.patch
+Patch0013:	0013-matroskademux-Check-for-big-enough-WavPack-codec-pri.patch
+Patch0014:	0014-matroskademux-Don-t-take-data-out-of-an-empty-adapte.patch
+Patch0015:	0015-matroskademux-Skip-over-laces-directly-when-postproc.patch
+Patch0016:	0016-matroskademux-Skip-over-zero-sized-Xiph-stream-heade.patch
+Patch0017:	0017-matroskademux-Put-a-copy-of-the-codec-data-into-the-.patch
+Patch0018:	0018-qtdemux-Fix-integer-overflow-when-allocating-the-sam.patch
+Patch0019:	0019-qtdemux-Check-sizes-of-stsc-stco-stts-before-trying-.patch
+Patch0020:	0020-qtdemux-Make-sure-only-an-even-number-of-bytes-is-pr.patch
+Patch0021:	0021-qtdemux-Make-sure-enough-data-is-available-before-re.patch
+Patch0022:	0022-qtdemux-Fix-length-checks-and-offsets-in-stsd-entry-.patch
+Patch0023:	0023-qtdemux-Fix-error-handling-when-parsing-cenc-sample-.patch
+Patch0024:	0024-qtdemux-Make-sure-there-are-enough-offsets-to-read-w.patch
+Patch0025:	0025-qtdemux-Actually-handle-errors-returns-from-various-.patch
+Patch0026:	0026-qtdemux-Check-for-invalid-atom-length-when-extractin.patch
+Patch0027:	0027-qtdemux-Add-size-check-for-parsing-SMI-SEQH-atom.patch
+Patch0028:	0028-jpegdec-Directly-error-out-on-negotiation-failures.patch
 
 BuildRequires:  meson >= 0.48.0
 BuildRequires:  gcc
@@ -78,6 +110,7 @@ BuildRequires:  mesa-libEGL-devel
 BuildRequires:  lame-devel
 BuildRequires:  mpg123-devel
 BuildRequires:  twolame-devel
+#BuildRequires:  qt6-qtshadertools
 %if %{with nasm}
 BuildRequires:  nasm
 %endif
@@ -85,7 +118,7 @@ BuildRequires:  libgudev-devel
 
 # extras
 %if %{with extras}
-BuildRequires:  jack-audio-connection-kit-devel
+BuildRequires:  pipewire-jack-audio-connection-kit-devel
 %ifnarch s390 s390x
 BuildRequires:  libavc1394-devel
 BuildRequires:  libdv-devel
@@ -93,6 +126,10 @@ BuildRequires:  libiec61883-devel
 BuildRequires:  libraw1394-devel
 %endif
 %endif
+
+# The soup elements dynamically load either version of libsoup at runtime,
+# defaulting to libsoup3 if libsoup2 is not already loaded in the process
+Recommends:     libsoup3%{?_isa}
 
 # Obsoletes/Provides moved from plugins-bad-free
 Obsoletes:      gstreamer1-plugin-mpg123 < 1.13.1
@@ -127,7 +164,7 @@ good quality and under the LGPL license.
 
 This package (%{name}-gtk) contains the gtksink output plugin.
 
-%if %{with qt}
+%if %{with qt5}
 %package qt
 Summary:         GStreamer "good" plugins qt qml plugin
 Requires:        %{name}%{?_isa} = %{version}-%{release}
@@ -137,6 +174,8 @@ BuildRequires: pkgconfig(Qt5Qml)
 BuildRequires: pkgconfig(Qt5Quick)
 BuildRequires: pkgconfig(Qt5X11Extras)
 BuildRequires: pkgconfig(Qt5WaylandClient)
+BuildRequires: qt5-qtbase-private-devel
+BuildRequires: qt5-linguist
 
 Supplements: (gstreamer1-plugins-good and qt5-qtdeclarative)
 
@@ -148,6 +187,31 @@ GStreamer Good Plugins is a collection of well-supported plugins of
 good quality and under the LGPL license.
 
 This package (%{name}-qt) contains the qtsink output plugin.
+%endif
+
+%if %{with qt6}
+%package qt6
+Summary:         GStreamer "good" plugins qt6 qml plugin
+Requires:        %{name}%{?_isa} = %{version}-%{release}
+
+BuildRequires: pkgconfig(Qt6Gui)
+BuildRequires: pkgconfig(Qt6Qml)
+BuildRequires: pkgconfig(Qt6Quick)
+BuildRequires: pkgconfig(Qt6WaylandClient)
+BuildRequires: pkgconfig(Qt6Linguist)
+BuildRequires: qt6-qtbase-private-devel
+BuildRequires: qt6-linguist
+
+Supplements: (gstreamer1-plugins-good and qt6-qtdeclarative)
+
+%description qt6
+GStreamer is a streaming media framework, based on graphs of elements which
+operate on media data.
+
+GStreamer Good Plugins is a collection of well-supported plugins of
+good quality and under the LGPL license.
+
+This package (%{name}-qt6) contains the qml6sink output plugin.
 %endif
 
 %if %{with extras}
@@ -171,13 +235,34 @@ to be installed.
 
 %prep
 %setup -q -n gst-plugins-good-%{version}
-%patch0 -p3
-%patch1 -p3
-%patch2 -p3
-%patch3 -p3
-%patch4 -p3
-%patch5 -p3
-%patch6 -p3
+%patch -P 0001 -p3
+%patch -P 0002 -p3
+%patch -P 0003 -p3
+%patch -P 0004 -p3
+%patch -P 0005 -p3
+%patch -P 0006 -p3
+%patch -P 0007 -p3
+%patch -P 0008 -p3
+%patch -P 0009 -p3
+%patch -P 0010 -p3
+%patch -P 0011 -p3
+%patch -P 0012 -p3
+%patch -P 0013 -p3
+%patch -P 0014 -p3
+%patch -P 0015 -p3
+%patch -P 0016 -p3
+%patch -P 0017 -p3
+%patch -P 0018 -p3
+%patch -P 0019 -p3
+%patch -P 0020 -p3
+%patch -P 0021 -p3
+%patch -P 0022 -p3
+%patch -P 0023 -p3
+%patch -P 0024 -p3
+%patch -P 0025 -p3
+%patch -P 0026 -p3
+%patch -P 0027 -p3
+%patch -P 0028 -p3
 
 %build
 %meson \
@@ -198,10 +283,12 @@ to be installed.
   -D dv=%{?with_extras:enabled}%{!?with_extras:disabled} \
   -D dv1394=%{?with_extras:enabled}%{!?with_extras:disabled} \
 %endif
-%if 0%{?_module_build} && "%{_module_name}" == "flatpak-runtime"
+%if 0%{?flatpak_runtime}
   -D v4l2-gudev=disabled \
 %endif
-  -D qt6=disabled
+  -D qt-egl=disabled \
+  -D qt5=%{?with_qt5:enabled}%{!?with_qt5:disabled} \
+  -D qt6=%{?with_qt6:enabled}%{!?with_qt6:disabled}
 
 %meson_build
 
@@ -304,8 +391,15 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 # Plugins with external dependencies
 %{_libdir}/gstreamer-%{majorminor}/libgstgtk.so
 
+%if %{with qt5}
 %files qt
 %{_libdir}/gstreamer-%{majorminor}/libgstqmlgl.so
+%endif
+
+%if %{with qt6}
+%files qt6
+%{_libdir}/gstreamer-%{majorminor}/libgstqml6.so
+%endif
 
 %if %{with extras}
 %files extras
@@ -319,40 +413,148 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
-* Mon Dec 16 2024 Wim Taymans <wtaymans@redhat.com> - 1.22.1-3
-- CVE-2024-47537, CVE-2024-47539, CVE-2024-47540, CVE-2024-47606,
-  CVE-2024-47613
-  Resolves: RHEL-70954, RHEL-70967, RHEL-70941, RHEL-71027,
-  Resolves: RHEL-71003
+* Fri Dec 13 2024 Wim Taymans <wtaymans@redhat.com> - 1.22.12-4
+- Apply patches for CVE-2024-47537, CVE-2024-47539, CVE-2024-47540
+  CVE-2024-47543, CVE-2024-47544, CVE-2024-47545, CVE-2024-47546,
+  CVE-2024-47596, CVE-2024-47597, CVE-2024-47598, CVE-2024-47599,
+  CVE-2024-47601, CVE-2024-47602, CVE-2024-47603, CVE-2024-47606,
+  CVE-2024-47613, CVE-2024-47774, CVE-2024-47775, CVE-2024-47776,
+  CVE-2024-47777, CVE-2024-47778, CVE-2024-47834
+- Resolves: RHEL-70958, RHEL-70971, RHEL-71033, RHEL-71195
+- Resolves: RHEL-71210, RHEL-71202, RHEL-71171, RHEL-71200
+- Resolves: RHEL-71206, RHEL-71173, RHEL-71198, RHEL-71204
+- Resolves: RHEL-71208, RHEL-71031, RHEL-71007, RHEL-71039
+- Resolves: RHEL-71169, RHEL-71192, RHEL-71161, RHEL-71167
+- Resolves: RHEL-71189
 
-* Wed Jan 17 2024 Wim Taymans <wtaymans@redhat.com> - 1.22.1-2
-- CVE-2023-37327: integer overflow leading to heap overwrite in FLAC
-  image tag handling
-- Resolves: RHEL-19471
+* Sat Nov 09 2024 Wim Taymans <wtaymans@redhat.com> - 1.22.12-3
+- Rebuild
+- Resolves: RHEL-38511, RHEL-41157
 
-* Thu Apr 13 2023 Wim Taymans <wtaymans@redhat.com> - 1.22.1-1
+* Fri Nov 08 2024 Wim Taymans <wtaymans@redhat.com> - 1.22.12-2
+- Rebuild
+- Resolves: RHEL-38511, RHEL-41157
+
+* Tue Apr 30 2024 Gwyn Ciesla <gwync@protonmail.com> - 1.22.12-1
+- 1.22.12
+
+* Fri Apr 26 2024 Gwyn Ciesla <gwync@protonmail.com> - 1.22.11-2
+- Qt6 re-rebuild
+
+* Thu Apr 18 2024 Gwyn Ciesla <gwync@protonmail.com> - 1.22.11-1
+- 1.22.11
+
+* Thu Apr 18 2024 Jan Grulich <jgrulich@redhat.com> - 1.22.9-1
+- Revert back to 1.22.9 (accidentally merged Rawhide to f40)
+
+* Thu Apr 04 2024 Jan Grulich <jgrulich@redhat.com> - 1.24.0-2
+- Rebuild (qt6)
+
+* Tue Mar 05 2024 Wim Taymans <wtaymans@redhat.com> - 1.24.0-1
+- Update to 1.24.0
+
+* Fri Feb 16 2024 Jan Grulich <jgrulich@redhat.com> - 1.22.9-3
+- Rebuild (qt6)
+
+* Tue Feb 13 2024 Pete Walter <pwalter@fedoraproject.org> - 1.22.9-2
+- Rebuild for libvpx 1.14.x
+
+* Thu Jan 25 2024 Gwyn Ciesla <gwync@protonmail.com> - 1.22.9-1
+- 1.22.9
+
+* Wed Jan 24 2024 Fedora Release Engineering <releng@fedoraproject.org> - 1.22.8-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_40_Mass_Rebuild
+
+* Sat Jan 20 2024 Fedora Release Engineering <releng@fedoraproject.org> - 1.22.8-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_40_Mass_Rebuild
+
+* Mon Dec 18 2023 Gwyn Ciesla <gwync@protonmail.com> - 1.22.8-1
+- 1.22.8
+
+* Wed Nov 29 2023 Jan Grulich <jgrulich@redhat.com> - 1.22.7-2
+- Rebuild (qt6)
+
+* Tue Nov 14 2023 Gwyn Ciesla <gwync@protonmail.com> - 1.22.7-1
+- 1.22.7
+
+* Fri Oct 13 2023 Jan Grulich <jgrulich@redhat.com> - 1.22.5-3
+- Rebuild (qt6)
+
+* Thu Oct 05 2023 Jan Grulich <jgrulich@redhat.com> - 1.22.5-2
+- Rebuild (qt6)
+
+* Fri Jul 21 2023 Wim Taymans <wtaymans@redhat.com> - 1.22.5-1
+- Update to 1.22.5
+- Disable qt-egl and add some BuildRequires to make things compile.
+
+* Thu Jul 20 2023 Fedora Release Engineering <releng@fedoraproject.org> - 1.22.3-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_39_Mass_Rebuild
+
+* Sun Jun 18 2023 Yaakov Selkowitz <yselkowi@redhat.com> - 1.22.3-2
+- Enable Qt6 plugin, disable Qt5 plugin for RHEL 10
+
+* Thu May 25 2023 Wim Taymans <wtaymans@redhat.com> - 1.22.3-1
+- Update to 1.22.3
+
+* Thu Apr 13 2023 Wim Taymans <wtaymans@redhat.com> - 1.22.2-1
+- Update to 1.22.2
+
+* Mon Mar 13 2023 Wim Taymans <wtaymans@redhat.com> - 1.22.1-1
 - Update to 1.22.1
 
-* Fri Nov 11 2022 Wim Taymans <wtaymans@redhat.com> - 1.18.4-6
-- Fixes for CVE-2022-1920, CVE-2022-1921, CVE-2022-1922, CVE-2022-1923,
-  CVE-2022-1924, CVE-2022-1925, CVE-2022-2122
-  Resolves: rhbz#2131034, rhbz#2131039, rhbz#2131045, rhbz#2131049,
-            rhbz#2131054, rhbz#2131060, rhbz#2131064
+* Wed Feb 15 2023 Tom Callaway <spot@fedoraproject.org> - 1.22.0-2
+- rebuild for new libvpx
 
-* Mon Aug 09 2021 Mohan Boddu <mboddu@redhat.com> - 1.18.4-5
-- Rebuilt for IMA sigs, glibc 2.34, aarch64 flags
-  Related: rhbz#1991688
+* Tue Jan 24 2023 Wim Taymans <wtaymans@redhat.com> - 1.22.0-1
+- Update to 1.22.0
 
-* Tue Jun 22 2021 Mohan Boddu <mboddu@redhat.com> - 1.18.4-4
-- Rebuilt for RHEL 9 BETA for openssl 3.0
-  Related: rhbz#1971065
+* Fri Jan 20 2023 Wim Taymans <wtaymans@redhat.com> - 1.21.90-1
+- Update to 1.21.90
 
-* Fri May 14 2021 Wim Taymans <wtaymans@redhat.com> - 1.18.4-3
+* Thu Jan 19 2023 Fedora Release Engineering <releng@fedoraproject.org> - 1.20.5-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_38_Mass_Rebuild
+
+* Wed Jan 11 2023 Wim Taymans <wtaymans@redhat.com> - 1.20.5-1
+- Update to 1.20.5
+
+* Thu Oct 13 2022 Wim Taymans <wtaymans@redhat.com> - 1.20.4-1
+- Update to 1.20.4
+
+* Tue Sep 13 2022 Michel Alexandre Salim <salimma@fedoraproject.org> - 1.20.3-3
+- Rebuilt for flac 1.4.0
+
+* Thu Jul 21 2022 Fedora Release Engineering <releng@fedoraproject.org> - 1.20.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
+
+* Mon Jul 18 2022 Wim Taymans <wtaymans@redhat.com> - 1.20.3-1
+- Update to 1.20.3
+
+* Fri Feb 4 2022 Wim Taymans <wtaymans@redhat.com> - 1.20.0-1
+- Update to 1.20.0
+
+* Thu Jan 27 2022 Tom Callaway <spot@fedoraproject.org> - 1.19.3-4
+- rebuild for libvpx
+
+* Wed Jan 26 2022 Wim Taymans <wtaymans@redhat.com> - 1.19.3-3
+- Fix build
+
+* Thu Jan 20 2022 Fedora Release Engineering <releng@fedoraproject.org> - 1.19.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
+
+* Thu Nov 11 2021 Wim Taymans <wtaymans@redhat.com> - 1.19.3-1
+- Update to 1.19.3
+
+* Thu Sep 23 2021 Wim Taymans <wtaymans@redhat.com> - 1.19.2-1
+- Update to 1.19.2
+
+* Thu Jul 22 2021 Fedora Release Engineering <releng@fedoraproject.org> - 1.19.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
+
+* Thu Jun 03 2021 Wim Taymans <wtaymans@redhat.com> - 1.19.1-1
+- Update to 1.19.1
+
+* Fri May 14 2021 Wim Taymans <wtaymans@redhat.com> - 1.18.4-2
 - Move libdv and friends to extras
-- Resolves: rhbz#1960634
-
-* Fri Apr 16 2021 Mohan Boddu <mboddu@redhat.com> - 1.18.4-2
-- Rebuilt for RHEL 9 BETA on Apr 15th 2021. Related: rhbz#1947937
 
 * Tue Mar 16 2021 Wim Taymans <wtaymans@redhat.com> - 1.18.4-1
 - Update to 1.18.4

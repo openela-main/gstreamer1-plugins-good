@@ -1,7 +1,7 @@
-From b990afeaf306972756e154d4542b2ab1170e506c Mon Sep 17 00:00:00 2001
+From c6f4528710213d4887cbd2bf60eddfe97f1e7529 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Sebastian=20Dr=C3=B6ge?= <sebastian@centricular.com>
 Date: Thu, 26 Sep 2024 22:16:06 +0300
-Subject: [PATCH 2/7] qtdemux: Avoid integer overflow when parsing Theora
+Subject: [PATCH 01/28] qtdemux: Avoid integer overflow when parsing Theora
  extension
 
 Thanks to Antonio Morales for finding and reporting the issue.
@@ -15,10 +15,10 @@ Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/80
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/subprojects/gst-plugins-good/gst/isomp4/qtdemux.c b/subprojects/gst-plugins-good/gst/isomp4/qtdemux.c
-index 5723fce466..75a5a53713 100644
+index a53d61e649..fcc818c7d7 100644
 --- a/subprojects/gst-plugins-good/gst/isomp4/qtdemux.c
 +++ b/subprojects/gst-plugins-good/gst/isomp4/qtdemux.c
-@@ -8206,7 +8206,7 @@ qtdemux_parse_theora_extension (GstQTDemux * qtdemux, QtDemuxStream * stream,
+@@ -8258,7 +8258,7 @@ qtdemux_parse_theora_extension (GstQTDemux * qtdemux, QtDemuxStream * stream,
    end -= 8;
  
    while (buf < end) {
@@ -27,7 +27,7 @@ index 5723fce466..75a5a53713 100644
      guint32 type;
  
      size = QT_UINT32 (buf);
-@@ -8214,7 +8214,7 @@ qtdemux_parse_theora_extension (GstQTDemux * qtdemux, QtDemuxStream * stream,
+@@ -8266,7 +8266,7 @@ qtdemux_parse_theora_extension (GstQTDemux * qtdemux, QtDemuxStream * stream,
  
      GST_LOG_OBJECT (qtdemux, "%p %p", buf, end);
  

@@ -1,7 +1,7 @@
-From 85a46b70bbc5b353136052e3aba00adf761335b6 Mon Sep 17 00:00:00 2001
+From d08f9f1de1782d30cb902df7fd3aab50134d1792 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Sebastian=20Dr=C3=B6ge?= <sebastian@centricular.com>
 Date: Wed, 2 Oct 2024 14:44:21 +0300
-Subject: [PATCH 3/7] gdkpixbufdec: Check if initializing the video info
+Subject: [PATCH 03/28] gdkpixbufdec: Check if initializing the video info
  actually succeeded
 
 Otherwise a 0-byte buffer would be allocated, which gives NULL memory when
