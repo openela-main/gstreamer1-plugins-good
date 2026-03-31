@@ -35,7 +35,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.24.11
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        GStreamer plugins with good code and licensing
 
 License:        CC0-1.0 AND GPL-2.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND xlock AND MIT AND BSD-3-Clause AND CC-BY-3.0 
@@ -54,6 +54,8 @@ Source0:        http://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugin
 # project, translated and installed into the right place during `make install`.
 # See http://www.freedesktop.org/software/appstream/docs/ for more details.
 Source1:        gstreamer-good.appdata.xml
+
+Patch0001:      0001-rtpqdm2depay-error-out-if-anyone-tries-to-use-this-e.patch
 
 BuildRequires:  meson >= 0.48.0
 BuildRequires:  gcc
@@ -216,6 +218,7 @@ to be installed.
 
 %prep
 %setup -q -n gst-plugins-good-%{version}
+%patch -P 0001 -p3
 
 %build
 %meson \
@@ -373,6 +376,10 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
+* Mon Mar 30 2026 Wim Taymans <wtaymans@redhat.com> - 1.24.11-2
+- Apply patches for CVE-2026-3083, CVE-2026-3085
+  Resolves: RHEL-156130, RHEL-156109
+
 * Tue Jan 14 2025 Wim Taymans <wtaymans@redhat.com> - 1.24.11-1
 - Update to 1.24.11
   Resolves: RHEL-73676
