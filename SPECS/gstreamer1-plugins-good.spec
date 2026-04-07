@@ -15,7 +15,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.16.1
-Release:        5%{?gitcommit:.git%{shortcommit}}%{?dist}
+Release:        6%{?gitcommit:.git%{shortcommit}}%{?dist}
 Summary:        GStreamer plugins with good code and licensing
 
 License:        LGPLv2+
@@ -38,6 +38,7 @@ Patch5:		0006-matroskademux-Only-unmap-GstMapInfo-in-WavPack-heade.patch
 Patch6:		0007-matroskademux-Fix-off-by-one-when-parsing-multi-chan.patch
 Patch7:		0008-qtdemux-Fix-integer-overflow-when-allocating-the-sam.patch
 Patch8:		0009-qtdemux-Make-sure-only-an-even-number-of-bytes-is-pr.patch
+Patch9:         0001-rtpqdm2depay-error-out-if-anyone-tries-to-use-this-e.patch
 
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
@@ -180,6 +181,7 @@ to be installed.
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 
 %build
 %configure --disable-silent-rules --disable-fatal-warnings \
@@ -364,6 +366,10 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 
 %changelog
+* Tue Mar 31 2026 Wim Taymans <wtaymans@redhat.com> - 1.16.1-6
+- Add patch for CVE-2026-3083 and CVE-2026-3085
+  Resolves: RHEL-156183, RHEL-156153
+
 * Mon Dec 16 2024 Wim Taymans <wtaymans@redhat.com> - 1.16.1-5
 - CVE-2024-47537, CVE-2024-47539, CVE-2024-47540, CVE-2024-47606,
   CVE-2024-47613
