@@ -1,4 +1,4 @@
-From 88bc030b7fd223c7e0c4d17995aff06f5a5a5a3f Mon Sep 17 00:00:00 2001
+From 88eb53d12c19f16ce9b3b6b8766084effcadfc1a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Tim-Philipp=20M=C3=BCller?= <tim@centricular.com>
 Date: Sun, 8 Feb 2026 16:01:21 +0000
 Subject: [PATCH] rtpqdm2depay: error out if anyone tries to use this element

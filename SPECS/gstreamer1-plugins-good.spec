@@ -34,7 +34,7 @@
 #global shortcommit %(c=%{gitcommit}; echo ${c:0:5})
 
 Name:           gstreamer1-plugins-good
-Version:        1.24.11
+Version:        1.26.7
 Release:        2%{?dist}
 Summary:        GStreamer plugins with good code and licensing
 
@@ -55,7 +55,7 @@ Source0:        http://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugin
 # See http://www.freedesktop.org/software/appstream/docs/ for more details.
 Source1:        gstreamer-good.appdata.xml
 
-Patch0001:      0001-rtpqdm2depay-error-out-if-anyone-tries-to-use-this-e.patch
+Patch:		0001-rtpqdm2depay-error-out-if-anyone-tries-to-use-this-e.patch
 
 BuildRequires:  meson >= 0.48.0
 BuildRequires:  gcc
@@ -217,8 +217,8 @@ to be installed.
 
 
 %prep
-%setup -q -n gst-plugins-good-%{version}
-%patch -P 0001 -p3
+%autosetup -n gst-plugins-good-%{version} -p3
+
 
 %build
 %meson \
@@ -376,9 +376,17 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
-* Mon Mar 30 2026 Wim Taymans <wtaymans@redhat.com> - 1.24.11-2
-- Apply patches for CVE-2026-3083, CVE-2026-3085
-  Resolves: RHEL-156130, RHEL-156109
+* Tue Mar 31 2026 Wim Taymans <wtaymans@redhat.com> - 1.26.7-2
+- Add patch for CVE-2026-3083 and CVE-2026-3085
+  Resolves: RHEL-156133, RHEL-156112
+
+* Tue Nov 04 2025 Wim Taymans <wtaymans@redhat.com> - 1.26.7-1
+- Update to 1.26.7
+  Resolves: RHEL-126057
+
+* Tue Jun 17 2025 Wim Taymans <wtaymans@redhat.com> - 1.26.2-1
+- Update to 1.26.2
+  Resolves: DESKTOP-1858
 
 * Tue Jan 14 2025 Wim Taymans <wtaymans@redhat.com> - 1.24.11-1
 - Update to 1.24.11
