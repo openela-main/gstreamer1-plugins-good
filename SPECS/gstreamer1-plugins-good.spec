@@ -28,7 +28,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.22.12
-Release:        5%{?dist}
+Release:        7%{?dist}
 Summary:        GStreamer plugins with good code and licensing
 
 License:        CC0-1.0 AND GPL-2.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND xlock AND MIT AND BSD-3-Clause AND CC-BY-3.0 
@@ -415,9 +415,16 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
+* Tue Mar 31 2026 Veronika Kabatova <vkabatov@redhat.com> - 1.22.12-7
+- Rebuild to fix missing binaries due to buildsystem oversight
+
+* Mon Mar 30 2026 Tomas Pelka <tpelka@redhat.com> - 1.22.12-6
+- Rebuild for z-stream
+  Resolves: RHEL-156272, RHEL-156273
+
 * Fri Mar 27 2026 Wim Taymans <wtaymans@redhat.com> - 1.22.12-5
 - Apply patches for CVE-2026-3083, CVE-2026-3085
-  Resolves: RHEL-156267, RHEL-156266
+  Resolves: RHEL-156272, RHEL-156273
 
 * Fri Dec 13 2024 Wim Taymans <wtaymans@redhat.com> - 1.22.12-4
 - Apply patches for CVE-2024-47537, CVE-2024-47539, CVE-2024-47540
