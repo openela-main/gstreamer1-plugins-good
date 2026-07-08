@@ -15,7 +15,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.16.1
-Release:        6%{?gitcommit:.git%{shortcommit}}%{?dist}
+Release:        7%{?gitcommit:.git%{shortcommit}}%{?dist}
 Summary:        GStreamer plugins with good code and licensing
 
 License:        LGPLv2+
@@ -39,6 +39,9 @@ Patch6:		0007-matroskademux-Fix-off-by-one-when-parsing-multi-chan.patch
 Patch7:		0008-qtdemux-Fix-integer-overflow-when-allocating-the-sam.patch
 Patch8:		0009-qtdemux-Make-sure-only-an-even-number-of-bytes-is-pr.patch
 Patch9:         0001-rtpqdm2depay-error-out-if-anyone-tries-to-use-this-e.patch
+# https://issues.redhat.com/browse/RHEL-184473
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11811
+Patch10:        gstreamer1-plugins-good-1.16.1-CVE-2026-53705.patch
 
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
@@ -182,6 +185,7 @@ to be installed.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
 
 %build
 %configure --disable-silent-rules --disable-fatal-warnings \
@@ -366,6 +370,10 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 
 %changelog
+* Fri Jun 19 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.16.1-7
+- Fix integer overflow vulnerabilities in wavpackdec (CVE-2026-53705)
+  Resolves: RHEL-184473
+
 * Tue Mar 31 2026 Wim Taymans <wtaymans@redhat.com> - 1.16.1-6
 - Add patch for CVE-2026-3083 and CVE-2026-3085
   Resolves: RHEL-156183, RHEL-156153
