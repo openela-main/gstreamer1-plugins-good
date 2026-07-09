@@ -28,7 +28,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.22.12
-Release:        7%{?dist}
+Release:        7%{?dist}.1
 Summary:        GStreamer plugins with good code and licensing
 
 License:        CC0-1.0 AND GPL-2.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND xlock AND MIT AND BSD-3-Clause AND CC-BY-3.0 
@@ -77,6 +77,7 @@ Patch0026:	0026-qtdemux-Check-for-invalid-atom-length-when-extractin.patch
 Patch0027:	0027-qtdemux-Add-size-check-for-parsing-SMI-SEQH-atom.patch
 Patch0028:	0028-jpegdec-Directly-error-out-on-negotiation-failures.patch
 Patch0029:      0001-rtpqdm2depay-error-out-if-anyone-tries-to-use-this-e.patch
+Patch0030:	0029-wavpackdec-Avoid-integer-overflow-when-calculating-.patch
 
 BuildRequires:  meson >= 0.48.0
 BuildRequires:  gcc
@@ -265,6 +266,7 @@ to be installed.
 %patch -P 0027 -p3
 %patch -P 0028 -p3
 %patch -P 0029 -p3
+%patch -P 0030 -p3
 
 %build
 %meson \
@@ -415,16 +417,17 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
-* Tue Mar 31 2026 Veronika Kabatova <vkabatov@redhat.com> - 1.22.12-7
-- Rebuild to fix missing binaries due to buildsystem oversight
-
-* Mon Mar 30 2026 Tomas Pelka <tpelka@redhat.com> - 1.22.12-6
-- Rebuild for z-stream
-  Resolves: RHEL-156272, RHEL-156273
+* Wed Jul 08 2026 Tomas Pelka <tpelka@redhat.com> - 1.22.12-7.1
+- Rebase rhel-9.8.0 from 1.18.4 to 1.22.12 to resync with rhel-9.7.0/c9s
+  (this branch had regressed to a stale pre-1.22.12 base)
+  Resolves: RHEL-156269, RHEL-156270
+- Fix CVE-2026-53705: integer overflow in wavpack decoder, re-applied
+  on top of the correct 1.22.12 base
+  Resolves: RHEL-184477
 
 * Fri Mar 27 2026 Wim Taymans <wtaymans@redhat.com> - 1.22.12-5
 - Apply patches for CVE-2026-3083, CVE-2026-3085
-  Resolves: RHEL-156272, RHEL-156273
+  Resolves: RHEL-156267, RHEL-156266
 
 * Fri Dec 13 2024 Wim Taymans <wtaymans@redhat.com> - 1.22.12-4
 - Apply patches for CVE-2024-47537, CVE-2024-47539, CVE-2024-47540

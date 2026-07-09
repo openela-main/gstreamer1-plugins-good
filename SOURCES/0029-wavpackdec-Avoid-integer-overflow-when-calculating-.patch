@@ -1,0 +1,164 @@
+From 572d6889f85aff91db9f296e40aa03bd8bcb1763 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Sebastian=20Dr=C3=B6ge?= <sebastian@centricular.com>
+Date: Fri, 5 Jun 2026 11:24:21 +0300
+Subject: [PATCH 1/4] wavpackdec: Avoid integer overflow when calculating
+ output buffer size
+
+Fixes https://gitlab.freedesktop.org/gstreamer/gstreamer/-/work_items/5069
+
+Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11797>
+---
+ ext/wavpack/gstwavpackdec.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c b/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c
+index 9fc32d8..62e4998 100644
+--- a/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c
++++ b/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c
+@@ -287,6 +287,7 @@ gst_wavpack_dec_handle_frame (GstAudioDecoder * bdec, GstBuffer * buf)
+   gint width, depth, i, j, max, wavpack_mode;
+   gboolean mode_float;
+   gint32 *dec_data = NULL;
++  gsize dec_data_size;
+   guint8 *out_data;
+   GstMapInfo map, omap;
+ 
+@@ -364,7 +365,11 @@ gst_wavpack_dec_handle_frame (GstAudioDecoder * bdec, GstBuffer * buf)
+   }
+ 
+   /* alloc output buffer */
+-  dec_data = g_malloc (4 * wph.block_samples * dec->channels);
++  dec_data_size = 4;
++  if (!g_size_checked_mul (&dec_data_size, dec_data_size, wph.block_samples) ||
++      !g_size_checked_mul (&dec_data_size, dec_data_size, dec->channels))
++    goto invalid_header;
++  dec_data = g_malloc (dec_data_size);
+ 
+   /* decode */
+   decoded = WavpackUnpackSamples (dec->context, dec_data, wph.block_samples);
+-- 
+2.52.0
+
+
+From d3e7d30428bcd48da16235829db1b25ae8c9c899 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Sebastian=20Dr=C3=B6ge?= <sebastian@centricular.com>
+Date: Fri, 5 Jun 2026 11:24:25 +0300
+Subject: [PATCH 2/4] wavpackdec: Use correctly-sized variable types
+
+Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11797>
+---
+ ext/wavpack/gstwavpackdec.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c b/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c
+index 62e4998..975849f 100644
+--- a/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c
++++ b/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c
+@@ -282,12 +282,12 @@ gst_wavpack_dec_handle_frame (GstAudioDecoder * bdec, GstBuffer * buf)
+   GstBuffer *outbuf = NULL;
+   GstFlowReturn ret = GST_FLOW_OK;
+   WavpackHeader wph;
+-  int32_t decoded, unpacked_size;
+   gboolean format_changed;
+-  gint width, depth, i, j, max, wavpack_mode;
++  gint width, depth, wavpack_mode;
+   gboolean mode_float;
+   gint32 *dec_data = NULL;
+-  gsize dec_data_size;
++  gsize i, j, dec_data_size, unpacked_size, max;
++  uint32_t decoded;
+   guint8 *out_data;
+   GstMapInfo map, omap;
+ 
+-- 
+2.52.0
+
+
+From e7c71443afeaeacb3fda7e139f3efb4e34fc325a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Sebastian=20Dr=C3=B6ge?= <sebastian@centricular.com>
+Date: Fri, 5 Jun 2026 11:24:29 +0300
+Subject: [PATCH 3/4] wavpackdec: Avoid integer overflow when checking input
+ buffer size
+
+Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11797>
+---
+ ext/wavpack/gstwavpackdec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c b/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c
+index 975849f..e976546 100644
+--- a/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c
++++ b/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c
+@@ -304,7 +304,7 @@ gst_wavpack_dec_handle_frame (GstAudioDecoder * bdec, GstBuffer * buf)
+   if (!gst_wavpack_read_header (&wph, map.data))
+     goto invalid_header;
+ 
+-  if (map.size < wph.ckSize + 4 * 1 + 4)
++  if (map.size - 4 * 1 - 4 < wph.ckSize)
+     goto input_not_framed;
+ 
+   if (!(wph.flags & INITIAL_BLOCK))
+-- 
+2.52.0
+
+
+From 41de2bb4a54000faccefc48f7b6a6c29a4333959 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Sebastian=20Dr=C3=B6ge?= <sebastian@centricular.com>
+Date: Fri, 5 Jun 2026 11:24:33 +0300
+Subject: [PATCH 4/4] wavpackdec: Unmap input buffer directly after decoding
+
+In case of decoder errors we would otherwise unmap the buffer after
+finish_frame(), which potentially invalidates the input buffer already.
+
+Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11797>
+---
+ ext/wavpack/gstwavpackdec.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c b/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c
+index e976546..b7991c1 100644
+--- a/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c
++++ b/subprojects/gst-plugins-good/ext/wavpack/gstwavpackdec.c
+@@ -288,6 +288,7 @@ gst_wavpack_dec_handle_frame (GstAudioDecoder * bdec, GstBuffer * buf)
+   gint32 *dec_data = NULL;
+   gsize i, j, dec_data_size, unpacked_size, max;
+   uint32_t decoded;
++  guint64 offset;
+   guint8 *out_data;
+   GstMapInfo map, omap;
+ 
+@@ -370,9 +371,12 @@ gst_wavpack_dec_handle_frame (GstAudioDecoder * bdec, GstBuffer * buf)
+       !g_size_checked_mul (&dec_data_size, dec_data_size, dec->channels))
+     goto invalid_header;
+   dec_data = g_malloc (dec_data_size);
++  offset = GST_BUFFER_OFFSET (buf);
+ 
+   /* decode */
+   decoded = WavpackUnpackSamples (dec->context, dec_data, wph.block_samples);
++  gst_buffer_unmap (buf, &map);
++  buf = NULL;
+   if (decoded != wph.block_samples)
+     goto decode_error;
+ 
+@@ -380,7 +384,7 @@ gst_wavpack_dec_handle_frame (GstAudioDecoder * bdec, GstBuffer * buf)
+   outbuf = gst_buffer_new_and_alloc (unpacked_size);
+ 
+   /* legacy; pass along offset, whatever that might entail */
+-  GST_BUFFER_OFFSET (outbuf) = GST_BUFFER_OFFSET (buf);
++  GST_BUFFER_OFFSET (outbuf) = offset;
+ 
+   gst_buffer_map (outbuf, &omap, GST_MAP_WRITE);
+   out_data = omap.data;
+@@ -425,9 +429,6 @@ gst_wavpack_dec_handle_frame (GstAudioDecoder * bdec, GstBuffer * buf)
+   }
+ 
+   gst_buffer_unmap (outbuf, &omap);
+-  gst_buffer_unmap (buf, &map);
+-  buf = NULL;
+-
+   g_free (dec_data);
+ 
+   ret = gst_audio_decoder_finish_frame (bdec, outbuf, 1);
+-- 
+2.52.0
+
