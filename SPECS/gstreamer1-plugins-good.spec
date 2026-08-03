@@ -35,7 +35,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.26.7
-Release:        2%{?dist}.1
+Release:        2%{?dist}.2
 Summary:        GStreamer plugins with good code and licensing
 
 License:        CC0-1.0 AND GPL-2.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND xlock AND MIT AND BSD-3-Clause AND CC-BY-3.0 
@@ -61,6 +61,8 @@ Patch:		0001-rtpqdm2depay-error-out-if-anyone-tries-to-use-this-e.patch
 # https://github.com/GStreamer/gstreamer/commit/f2313c0bcc1f68054168e0b6e884d458fba76fbc
 # https://github.com/GStreamer/gstreamer/commit/e92726ba1b60c16487d7a0fe11198f41e3bad51c
 Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-53705.patch
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11242
+Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-5056.patch
 
 BuildRequires:  meson >= 0.48.0
 BuildRequires:  gcc
@@ -381,6 +383,11 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
+* Fri Jul 31 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.2
+- Fix integer overflow and bounds check vulnerabilities in uncompressed
+  video handling (CVE-2026-5056)
+  Resolves: RHEL-222333
+
 * Fri Jun 19 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.1
 - Fix integer overflow vulnerabilities in wavpack decoder (CVE-2026-53705)
   Resolves: RHEL-184480
