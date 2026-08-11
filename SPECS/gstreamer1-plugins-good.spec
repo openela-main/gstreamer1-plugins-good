@@ -35,7 +35,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.26.7
-Release:        2%{?dist}.2
+Release:        2%{?dist}.3
 Summary:        GStreamer plugins with good code and licensing
 
 License:        CC0-1.0 AND GPL-2.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND xlock AND MIT AND BSD-3-Clause AND CC-BY-3.0 
@@ -63,6 +63,8 @@ Patch:		0001-rtpqdm2depay-error-out-if-anyone-tries-to-use-this-e.patch
 Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-53705.patch
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11242
 Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-5056.patch
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12234
+Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-18649.patch
 
 BuildRequires:  meson >= 0.48.0
 BuildRequires:  gcc
@@ -383,6 +385,11 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
+* Fri Aug 07 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.3
+- Fix excessive memory allocation from malicious RTP fragmentation unit
+  packets in rtph264depay/rtph265depay (CVE-2026-18649)
+  Resolves: RHEL-224158
+
 * Fri Jul 31 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.2
 - Fix integer overflow and bounds check vulnerabilities in uncompressed
   video handling (CVE-2026-5056)
