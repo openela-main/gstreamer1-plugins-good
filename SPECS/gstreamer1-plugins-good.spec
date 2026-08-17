@@ -28,7 +28,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.22.12
-Release:        7%{?dist}.2
+Release:        7%{?dist}.4
 Summary:        GStreamer plugins with good code and licensing
 
 License:        CC0-1.0 AND GPL-2.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND xlock AND MIT AND BSD-3-Clause AND CC-BY-3.0 
@@ -80,6 +80,10 @@ Patch0029:      0001-rtpqdm2depay-error-out-if-anyone-tries-to-use-this-e.patch
 Patch0030:	0029-wavpackdec-Avoid-integer-overflow-when-calculating-.patch
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12234
 Patch0031:	gstreamer1-plugins-good-1.22.12-CVE-2026-18649.patch
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12231
+Patch0032:	gstreamer1-plugins-good-1.22.12-CVE-2026-73433.patch
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12231
+Patch0033:	gstreamer1-plugins-good-1.22.12-CVE-2026-73434.patch
 
 BuildRequires:  meson >= 0.48.0
 BuildRequires:  gcc
@@ -270,6 +274,8 @@ to be installed.
 %patch -P 0029 -p3
 %patch -P 0030 -p3
 %patch -P 0031 -p3
+%patch -P 0032 -p3
+%patch -P 0033 -p1
 
 %build
 %meson \
@@ -420,6 +426,15 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
+* Thu Aug 13 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.4
+- Fix CVE-2026-73434: out-of-bounds read in AVI demuxer vprp handling
+  Resolves: RHEL-239042
+
+* Thu Aug 13 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.3
+- Fix CVE-2026-73433: add bounds checks to FUJIFILM strd metadata
+  parsing in avidemux to prevent unsigned integer underflow
+  Resolves: RHEL-239060
+
 * Fri Aug 07 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.2
 - Fix CVE-2026-18649: limit fragmentation unit size in RTP H.264/H.265
   depayloaders to prevent excessive memory usage
