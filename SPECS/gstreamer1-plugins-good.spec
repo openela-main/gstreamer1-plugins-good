@@ -35,7 +35,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.26.7
-Release:        2%{?dist}.3
+Release:        2%{?dist}.5
 Summary:        GStreamer plugins with good code and licensing
 
 License:        CC0-1.0 AND GPL-2.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND xlock AND MIT AND BSD-3-Clause AND CC-BY-3.0 
@@ -65,6 +65,10 @@ Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-53705.patch
 Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-5056.patch
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12234
 Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-18649.patch
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/commit/bb8fb5a9bf15fb845863430281e4bf908aec7090
+Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-73433.patch
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/commit/0bcc6564c7deedc7d6d7373a2ab6479c9bf3889f
+Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-73434.patch
 
 BuildRequires:  meson >= 0.48.0
 BuildRequires:  gcc
@@ -385,6 +389,15 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
+* Thu Aug 13 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.5
+- Fix CVE-2026-73434: out-of-bounds read in AVI demuxer vprp handling
+  Resolves: RHEL-239045
+
+* Thu Aug 13 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.4
+- Fix out-of-bounds reads when parsing FUJIFILM strd metadata in AVI
+  files (CVE-2026-73433)
+  Resolves: RHEL-239062
+
 * Fri Aug 07 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.3
 - Fix excessive memory allocation from malicious RTP fragmentation unit
   packets in rtph264depay/rtph265depay (CVE-2026-18649)
