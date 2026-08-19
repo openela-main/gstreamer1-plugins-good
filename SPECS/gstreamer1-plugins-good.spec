@@ -15,7 +15,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.16.1
-Release:        7%{?gitcommit:.git%{shortcommit}}%{?dist}
+Release:        7%{?gitcommit:.git%{shortcommit}}%{?dist}.3
 Summary:        GStreamer plugins with good code and licensing
 
 License:        LGPLv2+
@@ -42,6 +42,15 @@ Patch9:         0001-rtpqdm2depay-error-out-if-anyone-tries-to-use-this-e.patch
 # https://issues.redhat.com/browse/RHEL-184473
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11811
 Patch10:        gstreamer1-plugins-good-1.16.1-CVE-2026-53705.patch
+# https://issues.redhat.com/browse/RHEL-239068
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12231
+Patch11:        gstreamer1-plugins-good-1.16.1-CVE-2026-73433.patch
+# https://issues.redhat.com/browse/RHEL-224145
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12244
+Patch12:        gstreamer1-plugins-good-1.16.1-CVE-2026-18649.patch
+# https://issues.redhat.com/browse/RHEL-239048
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/commit/0bcc6564c7deedc7d6d7373a2ab6479c9bf3889f
+Patch13:        gstreamer1-plugins-good-1.16.1-CVE-2026-73434.patch
 
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
@@ -186,6 +195,9 @@ to be installed.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
 
 %build
 %configure --disable-silent-rules --disable-fatal-warnings \
@@ -370,6 +382,18 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 
 %changelog
+* Thu Aug 13 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.16.1-7.3
+- Fix CVE-2026-73434: out-of-bounds read in AVI demuxer vprp handling
+  Resolves: RHEL-239048
+
+* Thu Aug 13 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.16.1-7.2
+- Fix CVE-2026-18649 in H.264/H.265 RTP depayloaders
+  Resolves: RHEL-224145
+
+* Thu Aug 13 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.16.1-7.1
+- Fix multiple security issues in AVI demuxer (CVE-2026-73433)
+  Resolves: RHEL-239068
+
 * Fri Jun 19 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.16.1-7
 - Fix integer overflow vulnerabilities in wavpackdec (CVE-2026-53705)
   Resolves: RHEL-184473
