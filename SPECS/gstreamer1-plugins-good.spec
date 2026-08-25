@@ -28,7 +28,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.22.12
-Release:        7%{?dist}.4
+Release:        7%{?dist}.8
 Summary:        GStreamer plugins with good code and licensing
 
 License:        CC0-1.0 AND GPL-2.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND xlock AND MIT AND BSD-3-Clause AND CC-BY-3.0 
@@ -84,6 +84,14 @@ Patch0031:	gstreamer1-plugins-good-1.22.12-CVE-2026-18649.patch
 Patch0032:	gstreamer1-plugins-good-1.22.12-CVE-2026-73433.patch
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12231
 Patch0033:	gstreamer1-plugins-good-1.22.12-CVE-2026-73434.patch
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12041
+Patch0034:	gstreamer1-plugins-good-1.22.12-CVE-2026-18296.patch
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12043
+Patch0035:	gstreamer1-plugins-good-1.22.12-CVE-2026-18298.patch
+# CVE-2026-18295 is the same upstream fix as CVE-2026-18296 (Patch0034);
+# no separate patch file is needed (Patch0036 intentionally unused).
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12042
+Patch0037:	gstreamer1-plugins-good-1.22.12-CVE-2026-18299.patch
 
 BuildRequires:  meson >= 0.48.0
 BuildRequires:  gcc
@@ -276,6 +284,9 @@ to be installed.
 %patch -P 0031 -p3
 %patch -P 0032 -p3
 %patch -P 0033 -p1
+%patch -P 0034 -p1
+%patch -P 0035 -p1
+%patch -P 0037 -p1
 
 %build
 %meson \
@@ -426,6 +437,23 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
+* Sat Aug 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.8
+- Fix CVE-2026-18299: Use-After-Free in rtpsbcdepay
+  Resolves: RHEL-246619
+
+* Sat Aug 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.7
+- Fix CVE-2026-18296: size validation in qtmoovrecover MRF parsing
+  Resolves: RHEL-246558
+
+* Sat Aug 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.6
+- Fix CVE-2026-18298 in gdkpixbufdec element
+  Resolves: RHEL-246572
+
+* Sat Aug 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.5
+- Fix CVE-2026-18295: validate box sizes in qtmoovrecover to prevent
+  heap buffer overflow (same upstream fix as CVE-2026-18296)
+  Resolves: RHEL-246380
+
 * Thu Aug 13 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.4
 - Fix CVE-2026-73434: out-of-bounds read in AVI demuxer vprp handling
   Resolves: RHEL-239042
