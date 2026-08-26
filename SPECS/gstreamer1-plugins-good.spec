@@ -35,7 +35,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.26.7
-Release:        2%{?dist}.7
+Release:        2%{?dist}.8
 Summary:        GStreamer plugins with good code and licensing
 
 License:        CC0-1.0 AND GPL-2.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND xlock AND MIT AND BSD-3-Clause AND CC-BY-3.0 
@@ -73,6 +73,8 @@ Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-73434.patch
 Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-18296.patch
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12043
 Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-18298.patch
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12042
+Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-18299.patch
 
 BuildRequires:  meson >= 0.48.0
 BuildRequires:  gcc
@@ -393,6 +395,11 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
+* Tue Aug 25 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.8
+- Fix use-after-free vulnerability in RTP SBC depayloader
+  (CVE-2026-18299)
+  Resolves: RHEL-246613
+
 * Sat Aug 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.7
 - Fix CVE-2026-18298 in gdkpixbufdec element
   Resolves: RHEL-246557
