@@ -15,7 +15,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.16.1
-Release:        7%{?gitcommit:.git%{shortcommit}}%{?dist}.7
+Release:        7%{?gitcommit:.git%{shortcommit}}%{?dist}.8
 Summary:        GStreamer plugins with good code and licensing
 
 License:        LGPLv2+
@@ -396,6 +396,12 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 
 %changelog
+* Mon Aug 24 2026 Tomas Pelka <tpelka@redhat.com> - 1.16.1-7.8
+- avidemux: add GLib < 2.68 compatibility shim for g_memdup2, used by
+  the CVE-2026-73433 fix; without it the avi plugin fails to load on
+  RHEL 8 (GLib 2.56) with "undefined symbol: g_memdup2"
+  Resolves: RHEL-246869
+
 * Sat Aug 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.16.1-7.7
 - Fix CVE-2026-18296: heap buffer overflow in qtmoovrecover
   Resolves: RHEL-246382
