@@ -35,7 +35,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.26.7
-Release:        2%{?dist}.8
+Release:        10%{?dist}
 Summary:        GStreamer plugins with good code and licensing
 
 License:        CC0-1.0 AND GPL-2.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND xlock AND MIT AND BSD-3-Clause AND CC-BY-3.0 
@@ -56,19 +56,16 @@ Source0:        http://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugin
 Source1:        gstreamer-good.appdata.xml
 
 Patch:		0001-rtpqdm2depay-error-out-if-anyone-tries-to-use-this-e.patch
-# https://github.com/GStreamer/gstreamer/commit/318f72af3bf0d8314d1fd4b9117f240d1b8511b7
-# https://github.com/GStreamer/gstreamer/commit/8472adc6707caca61a18a4dee01dbe970ea430f2
-# https://github.com/GStreamer/gstreamer/commit/f2313c0bcc1f68054168e0b6e884d458fba76fbc
-# https://github.com/GStreamer/gstreamer/commit/e92726ba1b60c16487d7a0fe11198f41e3bad51c
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11797
 Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-53705.patch
-# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11242
-Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-5056.patch
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12234
 Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-18649.patch
-# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/commit/bb8fb5a9bf15fb845863430281e4bf908aec7090
-Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-73433.patch
-# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/commit/0bcc6564c7deedc7d6d7373a2ab6479c9bf3889f
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11242
+Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-5056.patch
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12231
 Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-73434.patch
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12231
+Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-73433.patch
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12041
 Patch:		gstreamer1-plugins-good-1.26.7-CVE-2026-18296.patch
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12043
@@ -395,46 +392,41 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
-* Tue Aug 25 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.8
-- Fix use-after-free vulnerability in RTP SBC depayloader
-  (CVE-2026-18299)
-  Resolves: RHEL-246613
+* Tue Aug 25 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-10
+- Fix CVE-2026-18299: use-after-free and missing checks in rtpsbcdepay
+  Resolves: RHEL-246615
 
-* Sat Aug 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.7
+* Mon Aug 24 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-9
 - Fix CVE-2026-18298 in gdkpixbufdec element
-  Resolves: RHEL-246557
+  Resolves: RHEL-246555
 
-* Sat Aug 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.6
-- Fix insufficient size validation in MRF file parsing in qtmoovrecover
-  (CVE-2026-18296)
-  Resolves: RHEL-246546
+* Mon Aug 24 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-8
+- Fix CVE-2026-18296: validate box sizes in qtmoovrecover
+  Resolves: RHEL-246547
 
-* Thu Aug 13 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.5
+* Mon Aug 17 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-7
+- Fix CVE-2026-73433: out-of-bounds reads in AVI FUJIFILM strd parsing
+  Resolves: RHEL-239061
+
+* Mon Aug 17 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-6
 - Fix CVE-2026-73434: out-of-bounds read in AVI demuxer vprp handling
-  Resolves: RHEL-239045
+  Resolves: RHEL-239041
 
-* Thu Aug 13 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.4
-- Fix out-of-bounds reads when parsing FUJIFILM strd metadata in AVI
-  files (CVE-2026-73433)
-  Resolves: RHEL-239062
+* Tue Aug 11 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-5
+- Fix CVE-2026-5056: bounds checks in qtdemux uncompressed video
+  Resolves: RHEL-222332
 
-* Fri Aug 07 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.3
-- Fix excessive memory allocation from malicious RTP fragmentation unit
-  packets in rtph264depay/rtph265depay (CVE-2026-18649)
-  Resolves: RHEL-224158
+* Tue Aug 11 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-4
+- Fix RTP H264/H265 depayloader fragmentation unit handling (CVE-2026-18649)
+  Resolves: RHEL-224159
 
-* Fri Jul 31 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.2
-- Fix integer overflow and bounds check vulnerabilities in uncompressed
-  video handling (CVE-2026-5056)
-  Resolves: RHEL-222333
-
-* Fri Jun 19 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-2.1
-- Fix integer overflow vulnerabilities in wavpack decoder (CVE-2026-53705)
-  Resolves: RHEL-184480
+* Wed Jul 29 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.26.7-3
+- Fix integer overflow in wavpack decoder (CVE-2026-53705)
+  Resolves: RHEL-184481
 
 * Tue Mar 31 2026 Wim Taymans <wtaymans@redhat.com> - 1.26.7-2
 - Add patch for CVE-2026-3083 and CVE-2026-3085
-  Resolves: RHEL-156133, RHEL-156112
+  Resolves: RHEL-156142, RHEL-156119
 
 * Tue Nov 04 2025 Wim Taymans <wtaymans@redhat.com> - 1.26.7-1
 - Update to 1.26.7
