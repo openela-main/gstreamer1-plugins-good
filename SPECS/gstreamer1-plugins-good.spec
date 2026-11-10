@@ -28,7 +28,7 @@
 
 Name:           gstreamer1-plugins-good
 Version:        1.22.12
-Release:        7%{?dist}.8
+Release:        14%{?dist}
 Summary:        GStreamer plugins with good code and licensing
 
 License:        CC0-1.0 AND GPL-2.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND xlock AND MIT AND BSD-3-Clause AND CC-BY-3.0 
@@ -77,21 +77,27 @@ Patch0026:	0026-qtdemux-Check-for-invalid-atom-length-when-extractin.patch
 Patch0027:	0027-qtdemux-Add-size-check-for-parsing-SMI-SEQH-atom.patch
 Patch0028:	0028-jpegdec-Directly-error-out-on-negotiation-failures.patch
 Patch0029:      0001-rtpqdm2depay-error-out-if-anyone-tries-to-use-this-e.patch
-Patch0030:	0029-wavpackdec-Avoid-integer-overflow-when-calculating-.patch
+# https://issues.redhat.com/browse/RHEL-184478
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11797
+Patch0030:	gstreamer1-plugins-good-1.22.12-CVE-2026-53705.patch
+# https://issues.redhat.com/browse/RHEL-224165
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12234
 Patch0031:	gstreamer1-plugins-good-1.22.12-CVE-2026-18649.patch
-# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12231
+# https://issues.redhat.com/browse/RHEL-239066
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/commit/bb8fb5a9bf15fb845863430281e4bf908aec7090
 Patch0032:	gstreamer1-plugins-good-1.22.12-CVE-2026-73433.patch
+# https://issues.redhat.com/browse/RHEL-239039
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12231
 Patch0033:	gstreamer1-plugins-good-1.22.12-CVE-2026-73434.patch
+# https://issues.redhat.com/browse/RHEL-246573
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12041
 Patch0034:	gstreamer1-plugins-good-1.22.12-CVE-2026-18296.patch
+# https://issues.redhat.com/browse/RHEL-246559
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12043
 Patch0035:	gstreamer1-plugins-good-1.22.12-CVE-2026-18298.patch
-# CVE-2026-18295 is the same upstream fix as CVE-2026-18296 (Patch0034);
-# no separate patch file is needed (Patch0036 intentionally unused).
+# https://issues.redhat.com/browse/RHEL-246616
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/12042
-Patch0037:	gstreamer1-plugins-good-1.22.12-CVE-2026-18299.patch
+Patch0036:	gstreamer1-plugins-good-1.22.12-CVE-2026-18299.patch
 
 BuildRequires:  meson >= 0.48.0
 BuildRequires:  gcc
@@ -283,10 +289,10 @@ to be installed.
 %patch -P 0030 -p3
 %patch -P 0031 -p3
 %patch -P 0032 -p3
-%patch -P 0033 -p1
-%patch -P 0034 -p1
-%patch -P 0035 -p1
-%patch -P 0037 -p1
+%patch -P 0033 -p3
+%patch -P 0034 -p3
+%patch -P 0035 -p3
+%patch -P 0036 -p3
 
 %build
 %meson \
@@ -437,48 +443,43 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 
 
 %changelog
-* Sat Aug 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.8
-- Fix CVE-2026-18299: Use-After-Free in rtpsbcdepay
-  Resolves: RHEL-246619
+* Tue Aug 25 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-14
+- Fix use-after-free in rtpsbcdepay (CVE-2026-18299)
 
-* Sat Aug 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.7
-- Fix CVE-2026-18296: size validation in qtmoovrecover MRF parsing
-  Resolves: RHEL-246558
+* Tue Aug 25 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-13
+- Fix gdkpixbufdec format and resolution change handling
+  (CVE-2026-18298)
 
-* Sat Aug 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.6
-- Fix CVE-2026-18298 in gdkpixbufdec element
-  Resolves: RHEL-246572
+* Mon Aug 24 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-12
+- Fix heap buffer overflow in MOV/MP4 moov recovery tool
+  (CVE-2026-18296)
 
-* Sat Aug 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.5
-- Fix CVE-2026-18295: validate box sizes in qtmoovrecover to prevent
-  heap buffer overflow (same upstream fix as CVE-2026-18296)
-  Resolves: RHEL-246380
+* Mon Aug 17 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-11
+- Fix avidemux vprp field info divisor calculation
+  (CVE-2026-73434)
 
-* Thu Aug 13 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.4
-- Fix CVE-2026-73434: out-of-bounds read in AVI demuxer vprp handling
-  Resolves: RHEL-239042
+* Mon Aug 17 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-10
+- Fix out-of-bounds reads in AVI FUJIFILM strd parsing
+  (CVE-2026-73433)
 
-* Thu Aug 13 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.3
-- Fix CVE-2026-73433: add bounds checks to FUJIFILM strd metadata
-  parsing in avidemux to prevent unsigned integer underflow
-  Resolves: RHEL-239060
-
-* Fri Aug 07 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-7.2
-- Fix CVE-2026-18649: limit fragmentation unit size in RTP H.264/H.265
+* Tue Aug 11 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-9
+- Limit maximum fragmentation unit size in RTP H264/H265
   depayloaders to prevent excessive memory usage
-  Resolves: RHEL-224162
+  (CVE-2026-18649)
 
-* Wed Jul 08 2026 Tomas Pelka <tpelka@redhat.com> - 1.22.12-7.1
-- Rebase rhel-9.8.0 from 1.18.4 to 1.22.12 to resync with rhel-9.7.0/c9s
-  (this branch had regressed to a stale pre-1.22.12 base)
-  Resolves: RHEL-156269, RHEL-156270
-- Fix CVE-2026-53705: integer overflow in wavpack decoder, re-applied
-  on top of the correct 1.22.12 base
-  Resolves: RHEL-184477
+* Wed Jul 29 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1.22.12-8
+- Fix integer overflows in wavpackdec (CVE-2026-53705)
+
+* Tue Mar 31 2026 Veronika Kabatova <vkabatov@redhat.com> - 1.22.12-7
+- Rebuild to fix missing binaries due to buildsystem oversight
+
+* Mon Mar 30 2026 Tomas Pelka <tpelka@redhat.com> - 1.22.12-6
+- Rebuild for z-stream
+  Resolves: RHEL-156272, RHEL-156273
 
 * Fri Mar 27 2026 Wim Taymans <wtaymans@redhat.com> - 1.22.12-5
 - Apply patches for CVE-2026-3083, CVE-2026-3085
-  Resolves: RHEL-156267, RHEL-156266
+  Resolves: RHEL-156272, RHEL-156273
 
 * Fri Dec 13 2024 Wim Taymans <wtaymans@redhat.com> - 1.22.12-4
 - Apply patches for CVE-2024-47537, CVE-2024-47539, CVE-2024-47540
